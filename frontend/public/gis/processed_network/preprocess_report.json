@@ -1,0 +1,27 @@
+{
+  "input_path": "C:\\Users\\gbin8\\Downloads\\accessible_network_preprocessor_bundle\\daejeon_accessible_network.geojson",
+  "input_features": 41042,
+  "projected_crs": "EPSG:5179",
+  "snap_tolerance_m": 0.35,
+  "precision_grid_m": 0.01,
+  "max_edge_length_m": 100.0,
+  "excluded_fclasses": [
+    "busway"
+  ],
+  "cleaned_source_features": 41041,
+  "snapped_endpoint_clusters": 16245,
+  "noded_segments": 115116,
+  "output_nodes": 92533,
+  "output_edges": 115038,
+  "dropped_short_or_empty": 1,
+  "dropped_self_loops": 78,
+  "connected_components": 483,
+  "largest_component_nodes": 90675,
+  "largest_component_ratio": 0.9799206769476835,
+  "degree_one_nodes": 8941,
+  "notes": [
+    "crosswalk_est and facility_est are proportional estimates because the input contains counts, not point locations.",
+    "Slope values are inherited from source lines; splitting does not recalculate DEM-derived slope.",
+    "Vehicle oneway is preserved as oneway but pedestrian walk_oneway defaults to false."
+  ]
+}

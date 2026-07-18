@@ -1,0 +1,58 @@
+﻿import type { AccessibilityBarrier } from "@/src/types/geo";
+
+export const mockBarriers: AccessibilityBarrier[] = [
+  {
+    id: "barrier-stairs-1",
+    type: "stairs",
+    label: "계단",
+    position: { lat: 36.38858, lng: 127.37636 },
+    riskLevel: "높음",
+    description: "보행로 연결부에 계단 12단이 있어 휠체어 이동이 어렵습니다.",
+    recommendation: "우회 동선을 안내하거나 완만한 경사로 설치를 검토하세요.",
+  },
+  {
+    id: "barrier-slope-1",
+    type: "steep-slope",
+    label: "급경사",
+    position: { lat: 36.38793, lng: 127.37703 },
+    riskLevel: "높음",
+    description: "약 18m 구간의 평균 경사가 높아 이동 부담이 큽니다.",
+    recommendation: "경사가 낮은 대체 경로를 우선 안내하세요.",
+  },
+  {
+    id: "barrier-sidewalk-1",
+    type: "damaged-sidewalk",
+    label: "보도 파손",
+    position: { lat: 36.3888, lng: 127.37556 },
+    riskLevel: "보통",
+    description: "보도블록 들뜸으로 바퀴 걸림 위험이 있습니다.",
+    recommendation: "정비 요청 지점으로 등록하고 임시 우회 안내를 제공하세요.",
+  },
+  {
+    id: "barrier-narrow-1",
+    type: "narrow-sidewalk",
+    label: "좁은 보도",
+    position: { lat: 36.38569, lng: 127.37938 },
+    riskLevel: "보통",
+    description: "유효 보도 폭이 좁아 보조기기와 유모차가 교행하기 어렵습니다.",
+    recommendation: "혼잡 시간대 회피 또는 넓은 보도 우회 경로를 안내하세요.",
+  },
+  {
+    id: "barrier-crossing-1",
+    type: "unsignalized-crossing",
+    label: "무신호 횡단",
+    position: { lat: 36.38449, lng: 127.37857 },
+    riskLevel: "높음",
+    description: "횡단 신호가 없어 보행 약자의 안전 확인 부담이 큽니다.",
+    recommendation: "신호등이 있는 횡단보도 경유 경로를 우선 추천하세요.",
+  },
+  {
+    id: "barrier-curb-1",
+    type: "curb-obstacle",
+    label: "턱·장애물",
+    position: { lat: 36.38687, lng: 127.38001 },
+    riskLevel: "보통",
+    description: "진입부 턱과 임시 적치물이 통행 폭을 줄이고 있습니다.",
+    recommendation: "시설 관리 주체에 장애물 정비를 요청하세요.",
+  },
+];
