@@ -7,6 +7,22 @@ export const DEFAULT_CENTER: LatLngPoint = {
 
 export const DEFAULT_ZOOM = 16;
 
+export const DAEJEON_BOUNDS = {
+  minLat: 36.26,
+  maxLat: 36.47,
+  minLng: 127.22,
+  maxLng: 127.51,
+} as const;
+
+export function isInDaejeonBounds(point: LatLngPoint): boolean {
+  return (
+    point.lat >= DAEJEON_BOUNDS.minLat &&
+    point.lat <= DAEJEON_BOUNDS.maxLat &&
+    point.lng >= DAEJEON_BOUNDS.minLng &&
+    point.lng <= DAEJEON_BOUNDS.maxLng
+  );
+}
+
 export function toGeoJsonLine(points: LatLngPoint[]): GeoJSON.LineString {
   return {
     type: "LineString",

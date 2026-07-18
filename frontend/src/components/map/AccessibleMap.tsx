@@ -13,9 +13,7 @@ import {
   ZoomControl,
   useMap,
 } from "react-leaflet";
-import { AccessibilityMarkers } from "@/src/components/map/AccessibilityMarkers";
 import { RouteLayers } from "@/src/components/map/RouteLayers";
-import { mockBarriers } from "@/src/data/mockBarriers";
 import { DEFAULT_CENTER, DEFAULT_ZOOM, formatCoordinate } from "@/src/lib/geo/geojson";
 import type { LatLngPoint } from "@/src/types/geo";
 import type { RouteResponse } from "@/src/types/route";
@@ -93,7 +91,6 @@ export function AccessibleMap({ start, end, response }: AccessibleMapProps) {
         <ZoomControl position="bottomright" />
         <MapViewportController end={end} start={start} />
         <RouteLayers response={response} />
-        <AccessibilityMarkers barriers={mockBarriers} />
         {start ? (
           <>
             <Marker icon={startIcon} position={[start.lat, start.lng]}>
@@ -134,12 +131,6 @@ export function AccessibleMap({ start, end, response }: AccessibleMapProps) {
           <div className="flex items-center gap-2">
             <span className="h-0 w-12 border-t-8 border-solid border-teal-700" />
             맞춤 경로
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="grid h-6 w-6 place-items-center rounded-full border-2 border-red-700 bg-orange-50 text-[10px] font-black">
-              !
-            </span>
-            접근성 장벽
           </div>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { createMockRouteResponse } from "@/src/data/mockRoutes";
+import { isInDaejeonBounds } from "@/src/lib/geo/geojson";
 import { calculateRoutesFromNetwork } from "@/src/lib/geo/networkRouting";
 import type { RouteRequest, RouteResponse, RouteResponseRoute } from "@/src/types/route";
 
@@ -49,6 +50,10 @@ export async function requestRoutes(
   request: RouteRequest,
   signal?: AbortSignal,
 ): Promise<RouteResponse> {
+  if (!isInDaejeonBounds(request.start) || !isInDaejeonBounds(request.end)) {
+    throw new Error("대전광역시 안의 출발지와 목적지만 경로를 계산할 수 있습니다.");
+  }
+
   if (shouldUseMockApi()) {
     await new Promise((resolve) => window.setTimeout(resolve, 650));
     return createMockRouteResponse(request.start, request.end);

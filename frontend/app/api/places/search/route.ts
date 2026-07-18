@@ -1,4 +1,5 @@
 ﻿import { NextResponse } from "next/server";
+import { isInDaejeonBounds } from "@/src/lib/geo/geojson";
 import type { PlaceSearchResult } from "@/src/types/place";
 
 const DAEJEON_VIEWBOX = "127.22,36.47,127.51,36.26";
@@ -74,12 +75,63 @@ type NominatimPlace = {
   };
 };
 
+function normalizeWhitespace(value: string) {
+  return value.normalize("NFKC").replace(/\s+/g, " ").trim();
+}
+
 function normalizeSearchText(value: string) {
   return value
     .normalize("NFKC")
     .replace(/대전광역시|대전시|대전/g, "")
     .replace(/[\s\-_.(),]/g, "")
     .toLowerCase();
+}
+
+function normalizeRemoteQuery(value: string) {
+  return normalizeWhitespace(value)
+    .replace(/([가-힣]+(?:로|길))\s*(\d+)/g, "$1 $2")
+    .replace(/(대전광역시|대전시|대전)\s*/g, "대전 ");
+}
+
+function createRemoteQueryCandidates(query: string) {
+  const normalized = normalizeRemoteQuery(query);
+  const compact = normalizeRemoteQuery(query.replace(/\s+/g, ""));
+  const withoutDaejeon = normalizeRemoteQuery(query.replace(/대전광역시|대전시|대전/g, ""));
+
+  return Array.from(new Set([normalized, compact, withoutDaejeon].filter(Boolean))).map(
+    (candidate) => (candidate.includes("대전") ? candidate : `${candidate} 대전`),
+  );
+}
+
+function includesDaejeonText(value: string | undefined) {
+  if (!value) {
+    return false;
+  }
+
+  const normalized = value.normalize("NFKC").toLowerCase();
+  return (
+    normalized.includes("대전") ||
+    normalized.includes("daejeon") ||
+    normalized.includes("taejon")
+  );
+}
+
+function isDaejeonNominatimPlace(place: NominatimPlace) {
+  const lat = Number(place.lat);
+  const lng = Number(place.lon);
+
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    return false;
+  }
+
+  const hasDaejeonAddress = [
+    place.display_name,
+    place.address?.city,
+    place.address?.county,
+    place.address?.state,
+  ].some(includesDaejeonText);
+
+  return hasDaejeonAddress && isInDaejeonBounds({ lat, lng });
 }
 
 function levenshteinDistance(a: string, b: string) {
@@ -192,31 +244,42 @@ function toPlaceSearchResult(place: NominatimPlace): PlaceSearchResult | null {
 }
 
 async function searchNominatim(query: string): Promise<PlaceSearchResult[]> {
-  const params = new URLSearchParams({
-    q: query.includes("대전") ? query : `${query} 대전`,
-    format: "jsonv2",
-    addressdetails: "1",
-    limit: "5",
-    countrycodes: "kr",
-    viewbox: DAEJEON_VIEWBOX,
-    bounded: "1",
-  });
+  const results: PlaceSearchResult[] = [];
 
-  const response = await fetch(`https://nominatim.openstreetmap.org/search?${params}`, {
-    headers: {
-      "User-Agent": "BarrierFreeRoute/0.1 contact: local-development",
-      Referer: "http://localhost:3000",
-    },
-  });
+  for (const candidate of createRemoteQueryCandidates(query)) {
+    const params = new URLSearchParams({
+      q: candidate,
+      format: "jsonv2",
+      addressdetails: "1",
+      limit: "5",
+      countrycodes: "kr",
+      viewbox: DAEJEON_VIEWBOX,
+      bounded: "1",
+    });
 
-  if (!response.ok) {
-    throw new Error("Nominatim search failed");
+    const response = await fetch(`https://nominatim.openstreetmap.org/search?${params}`, {
+      headers: {
+        "User-Agent": "BarrierFreeRoute/0.1 contact: local-development",
+        Referer: "http://localhost:3000",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Nominatim search failed");
+    }
+
+    const places = (await response.json()) as NominatimPlace[];
+    results.push(
+      ...places
+        .filter(isDaejeonNominatimPlace)
+        .map(toPlaceSearchResult)
+        .filter((place): place is PlaceSearchResult => place !== null),
+    );
   }
 
-  const places = (await response.json()) as NominatimPlace[];
-  return places
-    .map(toPlaceSearchResult)
-    .filter((place): place is PlaceSearchResult => place !== null);
+  return results.filter(
+    (place, index, places) => places.findIndex((item) => item.id === place.id) === index,
+  );
 }
 
 export async function GET(request: Request) {
